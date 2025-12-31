@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Our Journey to 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- 1. CORE & TYPOGRAPHY --- */
+        :root {
+            --primary-pink: #ff4d6d;
+            --soft-pink: #ff8fa3;
+            --deep-bg: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-glow: 0 0 12px rgba(255, 143, 163, 0.8);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--deep-bg);
+            font-family: 'Montserrat', sans-serif; /* Cleaner, more pro font */
+            color: #f0f0f0;
+        }
+
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* --- 2. UI CONTAINERS & GLASSMORPHISM --- */
+        #story-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            /* Subtle vignette effect */
+            background: radial-gradient(transparent 60%, rgba(0,0,0,0.7) 100%);
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.95); /* Subtle zoom effect on enter */
+            transition: opacity 0.8s cubic-bezier(0.4, 0.0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+            max-width: 650px;
+            width: 100%;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            background: linear-gradient(to right, #fff, var(--soft-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 0 10px rgba(255, 77, 109, 0.4));
+        }
+
+        p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin-bottom: 35px;
+            color: #e0e0e0;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .highlight {
+            color: var(--soft-pink);
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(255, 77, 109, 0.3);
+        }
+
+        /* --- 3. THE FANCY BUTTONS --- */
+        .btn {
+            position: relative;
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: rgba(255, 77, 109, 0.1); /* Glass background */
+            border: 1px solid rgba(255, 77, 109, 0.3);
+            border-radius: 50px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 
+                0 0 20px rgba(255, 77, 109, 0.1), /* Outer subtle glow */
+                inset 0 0 20px rgba(255, 77, 109, 0.1); /* Inner subtle glow */
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 77, 109, 0.3);
+            border-color: var(--soft-pink);
+            box-shadow: 
+                0 10px 30px rgba(255, 77, 109, 0.4), /* Stronger outer glow */
+                inset 0 0 15px rgba(255, 77, 109, 0.3); /* Stronger inner glow */
+                text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+
+        .btn:hover::before {
+            left: 100%; /* Shine effect across button */
+        }
+        
+        .btn:active {
+            transform: scale(0.98) translateY(-1px);
+        }
+
+
+        /* --- 4. THE PRO LETTER CARD --- */
+        .letter-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(150%); /* Stronger frosting effect */
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            max-height: 65vh;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 1rem;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.4), /* Deep shadow for depth */
+                inset 0 0 20px rgba(255, 255, 255, 0.02); /* Inner light */
+            
+            /* Custom Scrollbar styling */
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-pink) rgba(0,0,0,0.1);
+        }
+        
+        /* Webkit Scrollbar styling */
+        .letter-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .letter-content::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        .letter-content::-webkit-scrollbar-thumb {
+            background-color: var(--primary-pink);
+            border-radius: 10px;
+            border: 2px solid transparent;
+        }
+
+        /* --- 5. EFFECTS & ANIMATIONS --- */
+        #crack-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 5; opacity: 0;
+            transition: opacity 0.1s ease-in;
+            mix-blend-mode: overlay; /* Better blending with background */
+        }
+
+        .crack-path {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.9);
+            stroke-width: 3; /* Thicker cracks */
+            stroke-linecap: round; stroke-linejoin: round;
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.8)); /* Glowing cracks */
+        }
+
+        @keyframes violently-shake {
+            0% { transform: translate(0px, 0px) rotate(0deg); }
+            10% { transform: translate(-8px, -10px) rotate(-2deg); filter: blur(1px);}
+            20% { transform: translate(8px, 6px) rotate(2deg); }
+            30% { transform: translate(-10px, 8px) rotate(-3deg); filter: blur(2px);}
+            40% { transform: translate(10px, -8px) rotate(3deg); }
+            50% { transform: translate(-8px, 10px) rotate(-2deg); filter: blur(1px);}
+            60% { transform: translate(8px, -6px) rotate(2deg); }
+            70% { transform: translate(-10px, 8px) rotate(-3deg); }
+            80% { transform: translate(10px, -10px) rotate(3deg); }
+            90% { transform: translate(-8px, 8px) rotate(-2deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+
+        .shake-active {
+            animation: violently-shake 0.4s infinite linear;
+        }
+
+        .pulse-heart {
+            font-size: 6rem;
+            background: linear-gradient(to bottom, #ff4d6d, #ff8fa3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 77, 109, 0.8));
+            animation: pulse 1.8s infinite ease-in-out;
+            margin: 20px 0;
+            display: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(255, 77, 109, 0.8)); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 25px rgba(255, 77, 109, 1)); }
+        }
+
+        /* --- 6. FINALE --- */
+        #timer-box {
+            margin-top: 30px;
+            font-size: 1.5rem;
+            color: #fff;
+            background: rgba(255, 77, 109, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 20px 40px;
+            border-radius: 60px;
+            border: 1px solid var(--soft-pink);
+            box-shadow: 0 0 30px rgba(255, 77, 109, 0.3);
+            display: none;
+            animation: fadeIn 1.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas-bg"></canvas>
+
+    <div id="crack-overlay">
+        <svg width="100%" height="100%" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+             <path class="crack-path" d="M0,0 L50,70 L20,120 L120,180 L90,250 M50,70 L110,60" />
+             <path class="crack-path" d="M800,600 L730,520 L770,450 L680,380 L710,300 M730,520 L650,560" />
+             <path class="crack-path" d="M250,300 L320,330 L380,270 L450,360 L520,310 M320,330 L280,400 M380,270 L410,190 M450,360 L480,440" />
+             <path class="crack-path" d="M800,0 L700,80 L750,150 L650,200 M700,80 L620,50"/>
+        </svg>
+    </div>
+
+
+    <div id="story-container">
+        
+        <div class="slide active" id="slide-1">
+            <h1>Hey Babyy...</h1>
+            <p>Before we officially step into 2026, I want to take you on a journey through how we got here.</p>
+            <p>Are you ready?</p>
+            <button class="btn" onclick="nextSlide(2)">Yes, Take Me There</button>
+        </div>
+
+        <div class="slide" id="slide-2">
+            <h1>It Started in August</h1>
+            <p>Remember way back when we first started talking?</p>
+            <p>It was so simple. Small talks. Shy laughs. Getting to know each other.</p>
+            <p>Neither of us knew where this road was heading... <br>But somehow, it already felt <span class="highlight">different</span>.</p>
+            <button class="btn" onclick="nextSlide(3)">Then came September...</button>
+        </div>
+
+        <div class="slide" id="slide-3">
+            <h1>The Movie Night</h1>
+            <p>We were watching the <strong>Reze Arc</strong> from <em>Chainsaw Man</em>.</p>
+            <p>It was supposed to be just a normal movie moment, but then the world decided to interrupt...</p>
+            <button class="btn" onclick="triggerEarthquake()">Wait, what happened?</button>
+        </div>
+
+        <div class="slide" id="slide-4">
+            <div class="pulse-heart" id="heart-icon">♥</div>
+            <h1>The Shift</h1>
+            <p>Grabe ka funny, naabtan pa jud ta og earthquake HSHAHAHA.</p>
+            <p>But instead of panicking, you saw the light side. You made jokes. You calmed everything down.</p>
+            <p class="highlight">That was the exact moment something shifted inside me. That’s when I really started falling for you.</p>
+            <button class="btn" onclick="nextSlide(5)">Open My Letter</button>
+        </div>
+
+        <div class="slide" id="slide-5">
+            <h1>Our 2026</h1>
+            <div class="letter-content">
+                <p style="font-size: 1.3rem; font-weight: 600; color: var(--soft-pink);">Happy New Year babyy 🎆</p>
+                <p>Grabe, I still can’t believe how far we’ve come, and karon we’re welcoming 2026 together. This new year feels extra special kay ikaw naa sa akong life, and honestly, you’re one of the best things that ever happened to me.</p>
+                <p>Looking back to that earthquake moment, I realized you have this rare way of finding light even in unexpected or chaotic moments, and that’s something I admire so much about you. From then on, every day felt warmer, more meaningful, more real.</p>
+                <p>As we step into 2026, I want this to be our fresh new start. A year full of growth, dreams, laughter, late night talks, random moments, and memories we’ll look back on with full hearts. I know this year won’t be perfect naa jud challenges, stress, and tough days but I’m so grateful knowing nga ikaw akong kauban mo atubang ana tanan.</p>
+                <p>Thank you for choosing me, for loving me, for being patient, kind, and genuine. Thank you for being my comfort, my safe place, and my happiness.</p>
+                <p>Here’s to us, babyy. To more movies, more laughter, more unexpected moments, and more love. I’m so excited to spend this year and many more with you.</p>
+                <p style="font-weight: 600; margin-top: 30px;">Happy New Year, my love ❤️</p>
+            </div>
+            <button class="btn" onclick="nextSlide(6)">Let's Celebrate</button>
+        </div>
+
+        <div class="slide" id="slide-6">
+            <h1>Welcome to 2026</h1>
+            <p>I promise to be with you through every earthquake and every calm moment ahead.</p>
+            <button class="btn" id="seal-promise-btn" onclick="startFinale()">Seal the Promise 🔒</button>
+            <div id="timer-box">
+                Our 2026 Chapter Has Begun:<br>
+                <span id="timer" style="font-weight: 700; font-size: 2.5rem; letter-spacing: 2px; display: block; margin-top: 15px;">00:00:00</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* --- IMPROVED TIMELINE LOGIC --- */
+        function nextSlide(slideNumber) {
+            const currentSlide = document.querySelector('.slide.active');
+            currentSlide.style.opacity = '0';
+            currentSlide.style.transform = 'scale(1.1)'; // Slight zoom out on exit
+
+            setTimeout(() => {
+                currentSlide.classList.remove('active');
+                const next = document.getElementById('slide-' + slideNumber);
+                next.classList.add('active');
+                // Reset style for smooth entry
+                setTimeout(() => {
+                    next.style.opacity = '1';
+                    next.style.transform = 'scale(1)';
+                }, 50);
+            }, 800);
+        }
+
+        /* --- INTENSE EARTHQUAKE LOGIC --- */
+        function triggerEarthquake() {
+            const body = document.getElementById('story-container'); // Shake container instead of body for better effect
+            const cracks = document.getElementById('crack-overlay');
+
+            body.classList.add('shake-active');
+            cracks.style.opacity = '1';
+            
+            setTimeout(() => {
+                body.classList.remove('shake-active');
+                cracks.style.opacity = '0';
+                nextSlide(4);
+                document.getElementById('heart-icon').style.display = 'block';
+            }, 1800); 
+        }
+
+        /* --- FINALE LOGIC --- */
+        let fireworksActive = false;
+        
+        function startFinale() {
+            const btn = document.getElementById('seal-promise-btn');
+            btn.style.transform = 'scale(0)';
+            setTimeout(() => { btn.style.display = 'none'; }, 500);
+
+            document.getElementById('timer-box').style.display = 'block';
+            fireworksActive = true;
+            launchFireworks();
+            startTimer();
+        }
+
+        function startTimer() {
+            const startTime = new Date().getTime();
+            setInterval(() => {
+                const now = new Date().getTime();
+                const distance = now - startTime;
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById("timer").innerHTML = 
+                    (hours < 10 ? "0" + hours : hours) + ":" +
+                    (minutes < 10 ? "0" + minutes : minutes) + ":" +
+                    (seconds < 10 ? "0" + seconds : seconds);
+            }, 1000);
+        }
+
+        /* --- PRO BACKGROUND & FIREWORKS (CANVAS) --- */
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        let particles = [];
+        let stars = [];
+        let dust = [];
+
+        // Pro Star Background (Two Layers: Stars and Dust)
+        function initBackgroundElements() {
+            stars = []; dust = [];
+            // Sharp bright stars
+            for(let i=0; i<150; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5,
+                    opacity: Math.random() * 0.8 + 0.2,
+                    speed: Math.random() * 0.05
+                });
+            }
+            // Soft drifting cosmic dust
+            for(let i=0; i<80; i++) {
+                dust.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 4 + 2, // Larger
+                    opacity: Math.random() * 0.3, // Fainter
+                    speedX: (Math.random() - 0.5) * 0.2,
+                    speedY: (Math.random() - 0.5) * 0.2
+                });
+            }
+        }
+
+        // Firework Particle
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y; this.color = color;
+                // More explosive velocity
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 6 + 2;
+                this.velocity = {
+                    x: Math.cos(angle) * speed,
+                    y: Math.sin(angle) * speed
+                };
+                this.alpha = 1;
+                this.friction = 0.97;
+                this.gravity = 0.05;
+            }
+
+            draw() {
+                ctx.globalAlpha = this.alpha;
+                // Add a glow effect to fireworks
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.shadowBlur = 0; // Reset shadow
+            }
+
+            update() {
+                this.velocity.x *= this.friction;
+                this.velocity.y *= this.friction;
+                this.velocity.y += this.gravity; // Add gravity
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.015;
+            }
+        }
+
+        function launchFireworks() {
+            setInterval(() => {
+                if(!fireworksActive) return;
+                const x = Math.random() * canvas.width * 0.8 + canvas.width * 0.1; // Keep within screen bounds
+                const y = Math.random() * canvas.height * 0.6 + canvas.height * 0.1;
+                const hue = Math.floor(Math.random() * 50) + 320; // Pinks and reds
+                const color = `hsl(${hue}, 100%, 65%)`;
+                
+                for (let i = 0; i < 80; i++) { // More particles
+                    particles.push(new Particle(x, y, color));
+                }
+            }, 600);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+
+            // Draw Dust (Layer 1 - Background)
+            ctx.globalAlpha = 1;
+            dust.forEach(mote => {
+                mote.x += mote.speedX; mote.y += mote.speedY;
+                // Wrap around screen
+                if (mote.x < 0) mote.x = canvas.width; if (mote.x > canvas.width) mote.x = 0;
+                if (mote.y < 0) mote.y = canvas.height; if (mote.y > canvas.height) mote.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(mote.x, mote.y, mote.size, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(255, 143, 163, ${mote.opacity})`; // Soft pink dust
+                ctx.fill();
+            });
+
+            // Draw Stars (Layer 2 - Midground)
+            stars.forEach(star => {
+                star.y -= star.speed; // Slowly move up
+                if(star.y < 0) star.y = canvas.height;
+                
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                ctx.fill();
+            });
+
+            // Draw Fireworks (Layer 3 - Foreground)
+            particles.forEach((particle, index) => {
+                if (particle.alpha > 0) {
+                    particle.update();
+                    particle.draw();
+                } else {
+                    particles.splice(index, 1);
+                }
+            });
+        }
+
+        initBackgroundElements();
+        animate();
+
+    </script>
+</body>
+</html>
